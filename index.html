@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Mind map</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke-width='2.4' stroke-linecap='round'%3E%3Cpath d='M7 12C11 12 11 5.5 15 5.5h5' stroke='%232F6BE8'/%3E%3Cpath d='M7 12h13' stroke='%230B9474'/%3E%3Cpath d='M7 12C11 12 11 18.5 15 18.5h5' stroke='%23E0512B'/%3E%3Ccircle cx='5' cy='12' r='3.2' fill='%231B212B'/%3E%3C/svg%3E">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Hanken+Grotesk:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main id="canvas" tabindex="0" role="application" aria-roledescription="mind map" aria-label="Mind map canvas">
+    <div id="world">
+      <svg id="edges" aria-hidden="true"></svg>
+      <div id="nodes"></div>
+    </div>
+  </main>
+
+  <header class="topbar">
+    <div class="cluster">
+      <button class="brand-btn" id="mapsBtn" aria-haspopup="true" aria-expanded="false" aria-controls="mapsMenu" title="Your maps">
+        <svg class="brand" viewBox="0 0 24 24" fill="none" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+          <path d="M7 12C11 12 11 5.5 15 5.5h5" stroke="var(--b0)"/>
+          <path d="M7 12h13" stroke="var(--b1)"/>
+          <path d="M7 12C11 12 11 18.5 15 18.5h5" stroke="var(--b2)"/>
+          <circle cx="5" cy="12" r="3.2" fill="var(--ink)"/>
+        </svg>
+        <svg class="chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m7 10 5 5 5-5"/></svg>
+      </button>
+      <input id="mapTitle" class="map-title" spellcheck="false" maxlength="80" autocomplete="off" aria-label="Map name">
+      <div class="menu maps-menu" id="mapsMenu" hidden>
+        <button class="menu-item" id="newMapBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          New map
+        </button>
+        <div class="menu-sep"></div>
+        <div class="menu-label">Your maps</div>
+        <ul class="maps-list" id="mapsList"></ul>
+      </div>
+    </div>
+
+    <div class="cluster">
+      <button class="icon-btn" id="undoBtn" title="Undo (Ctrl+Z)" aria-label="Undo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 14 4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 0 11H11"/></svg>
+      </button>
+      <button class="icon-btn" id="redoBtn" title="Redo (Ctrl+Shift+Z)" aria-label="Redo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 14 5-5-5-5"/><path d="M20 9H9.5a5.5 5.5 0 0 0 0 11H13"/></svg>
+      </button>
+      <span class="sep"></span>
+      <button class="icon-btn hide-sm" id="zoomOutBtn" title="Zoom out (Ctrl+−)" aria-label="Zoom out">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 12h12"/></svg>
+      </button>
+      <button class="zoom-label hide-sm" id="zoomLabel" title="Zoom to 100%">100%</button>
+      <button class="icon-btn hide-sm" id="zoomInBtn" title="Zoom in (Ctrl+=)" aria-label="Zoom in">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 6v12M6 12h12"/></svg>
+      </button>
+      <button class="icon-btn" id="fitBtn" title="Fit map to screen (Ctrl+0)" aria-label="Fit map to screen">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9V5a1 1 0 0 1 1-1h4M15 4h4a1 1 0 0 1 1 1v4M20 15v4a1 1 0 0 1-1 1h-4M9 20H5a1 1 0 0 1-1-1v-4"/></svg>
+      </button>
+      <span class="sep"></span>
+      <button class="icon-btn" id="exportBtn" title="Export" aria-label="Export" aria-haspopup="true" aria-expanded="false" aria-controls="exportMenu">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"/></svg>
+      </button>
+      <button class="icon-btn" id="importBtn" title="Import a map (.json)" aria-label="Import a map">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V4M7 9l5-5 5 5M5 20h14"/></svg>
+      </button>
+      <button class="icon-btn" id="helpBtn" title="Keyboard shortcuts (?)" aria-label="Keyboard shortcuts">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M9.6 9.4a2.5 2.5 0 1 1 3.4 2.4c-.6.3-1 .8-1 1.5v.4M12 17h.01"/></svg>
+      </button>
+      <div class="menu export-menu" id="exportMenu" hidden>
+        <button class="menu-item" data-export="json">Export map <span class="hint">.json</span></button>
+        <button class="menu-item" data-export="md">Export as outline <span class="hint">.md</span></button>
+      </div>
+    </div>
+  </header>
+
+  <aside class="notes" id="notes" aria-label="Notes" aria-hidden="true" inert>
+    <div class="notes-head">
+      <span class="notes-path" id="notesPath"></span>
+      <button class="icon-btn" id="notesClose" title="Close notes (Esc)" aria-label="Close notes">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+      </button>
+    </div>
+    <textarea class="notes-title" id="notesTitle" rows="1" placeholder="Name this idea" aria-label="Idea name"></textarea>
+    <textarea class="notes-body" id="notesBody" placeholder="Write anything — details, links, to-dos…" aria-label="Notes"></textarea>
+    <div class="notes-foot"><span id="notesCount">Empty</span><span>Saves as you type</span></div>
+  </aside>
+
+  <div class="selbar" id="selbar">
+    <div class="sel-actions">
+      <button data-act="child" title="Add child (Tab)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 5v5a4 4 0 0 0 4 4h10M15 10l4 4-4 4"/></svg>
+        <span class="lbl">Add child</span><kbd>Tab</kbd>
+      </button>
+      <button data-act="sibling" title="Add sibling (Enter)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="6" rx="2"/><path d="M12 14v6M9 17h6"/></svg>
+        <span class="lbl">Add sibling</span><kbd>Enter</kbd>
+      </button>
+      <button data-act="notes" title="Open notes (double-click the idea)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h8.5L19 8v12.5H6z"/><path d="M9.5 12h6M9.5 16h4"/></svg>
+        <span class="lbl">Notes</span><kbd>Double-click</kbd>
+      </button>
+      <button data-act="fold" title="Fold or unfold (Space)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m8 4 4 4 4-4M8 20l4-4 4 4"/></svg>
+        <span class="lbl" id="foldLabel">Fold</span><kbd>Space</kbd>
+      </button>
+      <button data-act="delete" class="danger" title="Delete (Del)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16M10 11v6M14 11v6M6 7l1 13h10l1-13M9 7V4h6v3"/></svg>
+        <span class="lbl">Delete</span><kbd>Del</kbd>
+      </button>
+    </div>
+    <p class="sel-hint">Click an idea to select it. Double-click to open its notes.</p>
+  </div>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <dialog class="help" id="help" aria-labelledby="helpTitle">
+    <div class="help-head">
+      <h2 id="helpTitle">Keyboard shortcuts</h2>
+      <form method="dialog">
+        <button class="icon-btn" aria-label="Close" title="Close (Esc)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </form>
+    </div>
+    <div class="help-body">
+      <section>
+        <h3>Create</h3>
+        <dl>
+          <dt>Add child</dt><dd><kbd>Tab</kbd></dd>
+          <dt>Add sibling below</dt><dd><kbd>Enter</kbd></dd>
+          <dt>Add sibling above</dt><dd><kbd>Shift</kbd><kbd>Enter</kbd></dd>
+          <dt>Rename</dt><dd><kbd>F2</kbd> or start typing</dd>
+          <dt>Finish renaming</dt><dd><kbd>Enter</kbd></dd>
+          <dt>New line in a name</dt><dd><kbd>Shift</kbd><kbd>Enter</kbd></dd>
+        </dl>
+      </section>
+      <section>
+        <h3>Organize</h3>
+        <dl>
+          <dt>Fold / unfold</dt><dd><kbd>Space</kbd></dd>
+          <dt>Move up / down</dt><dd><kbd>Alt</kbd><kbd>↑</kbd><kbd>↓</kbd></dd>
+          <dt>Delete</dt><dd><kbd>Del</kbd></dd>
+          <dt>Undo / redo</dt><dd><kbd>Ctrl</kbd><kbd>Z</kbd> · <kbd>Ctrl</kbd><kbd>Y</kbd></dd>
+        </dl>
+      </section>
+      <section>
+        <h3>Notes</h3>
+        <dl>
+          <dt>Open notes</dt><dd>Double-click · <kbd>Ctrl</kbd><kbd>Enter</kbd></dd>
+          <dt>Close notes</dt><dd><kbd>Esc</kbd></dd>
+        </dl>
+      </section>
+      <section>
+        <h3>Move around</h3>
+        <dl>
+          <dt>Select nearby idea</dt><dd><kbd>←</kbd><kbd>↑</kbd><kbd>↓</kbd><kbd>→</kbd></dd>
+          <dt>Zoom</dt><dd>Scroll · <kbd>Ctrl</kbd><kbd>+</kbd><kbd>−</kbd></dd>
+          <dt>Fit map to screen</dt><dd><kbd>Ctrl</kbd><kbd>0</kbd></dd>
+          <dt>Pan</dt><dd>Drag empty space</dd>
+        </dl>
+      </section>
+    </div>
+  </dialog>
+
+  <input type="file" id="importInput" accept=".json,application/json" hidden>
+  <script src="app.js"></script>
+</body>
+</html>
